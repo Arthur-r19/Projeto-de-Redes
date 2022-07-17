@@ -1,6 +1,7 @@
 import threading
 import socket
 import random
+from datetime import datetime
 
 PORT = 5050
 SERVER = "localhost" # socket.gethostbyname(socket.gethostname())
@@ -16,6 +17,7 @@ server.bind(ADDRESS)
 clients = set()
 clients_lock = threading.Lock() 
 
+
 def start():
     print('\033[1;41m[SERVER STARTED]\033[0m')
     server.listen()
@@ -29,13 +31,15 @@ def start():
 def handle_client(conn, addr):
     name = conn.recv(1024).decode(FORMAT)
     color = random.randint(31, 37)
-    wlc_msg = f'\033[1;41m[SERVER] \033[30;{color+10}m{name}\033[41m ENTROU NO CHAT!'
-    frwl_msg = f'\033[1;41m[SERVER] \033[30;{color+10}m{name}\033[41m SAIU DO CHAT!'
+    help_msg = f'\033[1;41m[SERVER]\033[0m Envie \033[1;31m!HELP\033[0m para mais informações'
+    wlc_msg = f'\033[1;41m[SERVER]\033[0m \033[1;{color}m{name}\033[0m ENTROU NO CHAT!'
+    frwl_msg = f'\033[1;41m[SERVER]\033[0m \033[1;{color}m{name}\033[0m SAIU DO CHAT!'
     print(f'{wlc_msg}\033[0m')
 
     with clients_lock:
         for client in clients:
             client.send(wlc_msg.encode(FORMAT))
+    conn.send(help_msg.encode(FORMAT))
     try:
         connected = True
         while connected:
@@ -46,7 +50,7 @@ def handle_client(conn, addr):
             if msg == DISCONNECT_MESSAGE:
                 connected = False
             
-            custom_msg = f'\033[1;{color}m[{name}]: {msg}\033[0m'
+            custom_msg = f"{datetime.now().strftime('%H:%M')} \033[1;{color}m[{name}]: {msg}\033[0m"
             print(custom_msg)
             with clients_lock:
                 for client in clients:
