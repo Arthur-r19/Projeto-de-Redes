@@ -7,6 +7,8 @@ ADDRESS = (SERVER, PORT)
 FORMAT = "utf-8"
 # HEADER = 64
 DISCONNECT_MESSAGE = "!CLOSE"
+CLEAR_MESSAGE = "!CLEAR"
+HELP_MESSAGE = "!HELP"
 
 def connect():
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM) # IPV4 Adresses with TCP protocol
@@ -37,6 +39,9 @@ def start():
             print('\033[1A\033[999D\033[2K', end='')
             if msg == DISCONNECT_MESSAGE:
                 break
+            if msg == CLEAR_MESSAGE:
+                print('\033[1J\033[1;1H', end='')
+                continue
             
             send(conn, msg)
         
