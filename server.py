@@ -1,5 +1,6 @@
 import threading
 import socket
+import random
 
 PORT = 5050
 SERVER = "localhost" # socket.gethostbyname(socket.gethostname())
@@ -16,6 +17,7 @@ clients = set()
 clients_lock = threading.Lock() 
 
 def start():
+    print('\033[1;41m[SERVER STARTED]\033[0m')
     server.listen()
     while True:
         conn, addr = server.accept()
@@ -24,11 +26,16 @@ def start():
         thread = threading.Thread(target=handle_client, args=(conn, addr)) # handling each client on a separated thread
         thread.start()
 
-
-
 def handle_client(conn, addr):
-    print(f'[SERVER] {addr} JOINED THE CHAT!')
+    name = conn.recv(1024).decode(FORMAT)
+    color = random.randint(31, 37)
+    wlc_msg = f'\033[1;41m[SERVER] \033[30;{color+10}m{name}\033[41m ENTROU NO CHAT!'
+    frwl_msg = f'\033[1;41m[SERVER] \033[30;{color+10}m{name}\033[41m SAIU DO CHAT!'
+    print(f'{wlc_msg}\033[0m')
 
+    with clients_lock:
+        for client in clients:
+            client.send(wlc_msg.encode(FORMAT))
     try:
         connected = True
         while connected:
@@ -39,15 +46,18 @@ def handle_client(conn, addr):
             if msg == DISCONNECT_MESSAGE:
                 connected = False
             
-            print(f'[{addr}]: {msg}')
+            custom_msg = f'\033[1;{color}m[{name}]: {msg}\033[0m'
+            print(custom_msg)
             with clients_lock:
                 for client in clients:
-                    client.sendall(f'[{addr}]: {msg}'.encode(FORMAT))
-
+                    client.sendall(custom_msg.encode(FORMAT))
 
     finally:
+        print(f'{frwl_msg}\033[0m')
         with clients_lock:
             clients.remove(conn)
             for client in clients:
-                client.sendall(f'[SERVER] {addr} LEFT THE CHAT!')
+                client.sendall(frwl_msg.encode(FORMAT))
         conn.close()
+    
+start()
