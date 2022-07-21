@@ -15,6 +15,13 @@ sudo apt-get install python3
 ````
 git clone https://github.com/Arthur-r19/Projeto-de-Redes.git
 cd Projeto-de-Redes/src/
+````
+Servidor
+````
 python3 server.py
+````
+
+Clientes
+````
 python3 client.py
 ````
