@@ -1,4 +1,4 @@
-# Socket Server For Chatroom
+# Chatroom with Python Sockets 
 
 Projeto da disciplina de Redes de Computadores, o qual consiste em uma estrutura de bate-papo que utiliza sockets.
 
